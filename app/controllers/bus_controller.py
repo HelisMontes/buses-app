@@ -11,9 +11,11 @@ from app.serializers.bus import BusSerializer
 def get_one(request, pk):
     serializer = BusSerializer()
     bus = serializer.get_one(pk)
-    if not bus.get('is_valid'):
-        return JsonResponse(bus, status=404)
-    return JsonResponse(bus['data'].data, status=200)
+    if not bus:
+        return JsonResponse({
+            'error': 'Bus with id {} does not exist'.format(pk)
+        }, status=404)
+    return JsonResponse(bus.data, status=200)
 
 
 @csrf_exempt
@@ -26,3 +28,29 @@ def create(request):
 
     serializer.save()
     return JsonResponse(serializer.data, status=201)
+
+
+@csrf_exempt
+@api_view(['POST'])
+def update(request):
+    data = JSONParser().parse(request)
+
+    if not data.get('id'):
+        return JsonResponse({'error': 'id is required'}, status=400)
+
+    pk = data.get('id')
+
+    serializer = BusSerializer()
+    bus = serializer.get_one(pk)
+    if not bus:
+        return JsonResponse({
+            'error': 'Bus with id {} does not exist'.format(pk)
+        }, status=404)
+
+    bus.initial_data = data
+    if not bus.is_valid():
+        return JsonResponse(bus.errors, status=422)
+
+    bus.save()
+
+    return JsonResponse(bus.data, status=201)

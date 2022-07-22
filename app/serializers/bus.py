@@ -12,7 +12,9 @@ class BusSerializer(serializers.Serializer):
     plate = serializers.CharField(
         required=True,
         max_length=10,
-        validators=[UniqueValidator(queryset=Bus.objects.all())]
+        validators=[
+            UniqueValidator(queryset=Bus.objects.all()),
+        ],
     )
     quantity_seats = serializers.IntegerField(required=True, min_value=1, max_value=10)
     image = serializers.RegexField(r'data:image\/([a-zA-Z]*);base64,([^\"]*)', required=False)
@@ -40,18 +42,10 @@ class BusSerializer(serializers.Serializer):
         return instance
 
     def get_one(self, pk):
-        response = {
-            'data': {},
-            'message': '',
-            'is_valid': False,
-        }
         try:
-            response['data'] = BusSerializer(Bus.objects.get(pk=pk))
-            response['message'] = 'Bus found'
-            response['is_valid'] = True
+            return BusSerializer(instance=Bus.objects.get(id=pk))
         except Bus.DoesNotExist:
-            response['message'] = 'Bus not found'
-        return response
+            return False
 
     class Meta:
         model = Bus

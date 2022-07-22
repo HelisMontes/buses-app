@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from app.models.bus import Bus
+from app.helpers.base64_to_file import base64_to_file
 
 
 class BusSerializer(serializers.Serializer):
@@ -14,10 +15,15 @@ class BusSerializer(serializers.Serializer):
         validators=[UniqueValidator(queryset=Bus.objects.all())]
     )
     quantity_seats = serializers.IntegerField(required=True, min_value=1, max_value=10)
+    image = serializers.RegexField(r'data:image\/([a-zA-Z]*);base64,([^\"]*)', required=False)
     year = serializers.IntegerField(min_value=1950, max_value=2050)
     status = serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate(self, data):
+        data['image'] = base64_to_file(data.get('image')) if data.get('image') else None
+        return data
 
     def create(self, validated_data):
         return Bus.objects.create(**validated_data)

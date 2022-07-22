@@ -1,6 +1,14 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+import uuid
+import os
+
+
+def get_file_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    return os.path.join('buses/', filename)
 
 
 class Bus(models.Model):
@@ -14,6 +22,7 @@ class Bus(models.Model):
             MaxValueValidator(10),
         ]
     )
+    image = models.ImageField('img', upload_to=get_file_path)
     year = models.PositiveSmallIntegerField()
     status = models.BooleanField(default=True)
 

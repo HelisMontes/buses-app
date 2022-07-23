@@ -49,7 +49,7 @@ class BusSerializer(serializers.Serializer):
 
     def get_all(self, page=1, per_page=10):
         return BusSerializer(
-            instance=Bus.objects.all().order_by('-id'),
+            instance=Bus.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
             many=True,
         )
 

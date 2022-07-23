@@ -47,6 +47,12 @@ class BusSerializer(serializers.Serializer):
         except Bus.DoesNotExist:
             return False
 
+    def get_all(self, page=1, per_page=10):
+        return BusSerializer(
+            instance=Bus.objects.all().order_by('-id'),
+            many=True,
+        )
+
     class Meta:
         model = Bus
         fields = "__all__"

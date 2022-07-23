@@ -3,5 +3,8 @@ from django.urls import include
 
 
 urlpatterns = [
-    path('bus/', include('app.routes.bus')),
+    path(
+        'bus/',
+        include('app.routes.bus'),
+    ),
 ]

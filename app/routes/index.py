@@ -19,4 +19,8 @@ urlpatterns = [
         'journey/',
         include('app.routes.journey'),
     ),
+    path(
+        'ticket/',
+        include('app.routes.ticket'),
+    ),
 ]

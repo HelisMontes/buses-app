@@ -20,8 +20,6 @@ class Ticket(models.Model):
             MaxValueValidator(10),
         ]
     )
-    datetime_sold = models.DateTimeField()
-
     status = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(null=True)

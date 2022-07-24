@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
 
+from app.models.ticket import Ticket
+
 
 class Journey(models.Model):
     origen = models.ForeignKey(
@@ -38,3 +40,13 @@ class Journey(models.Model):
 
     created_at = models.DateTimeField(null=True)
     updated_at = models.DateTimeField(null=True)
+
+    def seat_available(self, number_seat, instance=None):
+        ticket = Ticket.objects.filter(
+            journey=self,
+            status=True,
+            number_seat=number_seat,
+        )
+        if instance:
+            ticket = ticket.exclude(id=instance.id)
+        return not ticket.exists()

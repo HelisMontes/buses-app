@@ -20,7 +20,7 @@ class UserSerializer(Serializer):
     last_name = serializers.CharField(max_length=100)
     email = serializers.EmailField(
         required=True,
-        max_length=20,
+        max_length=150,
         validators=[UniqueValidator(queryset=User.objects.all())]
     )
     phone = serializers.CharField(

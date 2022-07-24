@@ -22,10 +22,12 @@ class Bus(models.Model):
     created_at = models.DateTimeField(null=True)
     updated_at = models.DateTimeField(null=True)
 
-    def is_available(self, datetime_start, datetime_end):
+    def is_available(self, datetime_start, datetime_end, instance=None):
         journeys = Journey.objects.filter(
             bus=self,
             datetime_start__lte=datetime_end,
             datetime_end__gte=datetime_start,
         )
+        if instance:
+            journeys = journeys.exclude(id=instance.id)
         return not journeys.exists()

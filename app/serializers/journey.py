@@ -76,9 +76,9 @@ class JourneySerializer(Serializer):
             })
 
         errors = {}
-        if not bus.is_available(datetime_start, datetime_end):
+        if not bus.is_available(datetime_start, datetime_end, self.instance):
             errors['bus'] = 'Bus is not available in this time'
-        if not user.is_available(datetime_start, datetime_end):
+        if not user.is_available(datetime_start, datetime_end, self.instance):
             errors['user'] = 'User is not available in this time'
 
         if errors.keys():

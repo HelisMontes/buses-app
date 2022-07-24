@@ -12,13 +12,13 @@ def request(function):
             **args[0].query_params,
         }
         if query_params.get('page'):
-            page = query_params.get('page')
+            page = query_params.get('page', '') if type(query_params.get('page')) != list else query_params.get('page')[0]
             if page.isdigit():
                 query_params['page'] = int(page)
             else:
                 del query_params['page']
         if query_params.get('per_page'):
-            per_page = query_params.get('per_page')
+            per_page = query_params.get('per_page', '') if type(query_params.get('per_page')) != list else query_params.get('per_page')[0]
             if per_page.isdigit():
                 query_params['per_page'] = int(per_page)
             else:

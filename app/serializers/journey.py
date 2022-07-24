@@ -1,11 +1,16 @@
 from rest_framework import serializers
 from django.utils import timezone
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import Value, CharField, Count, F, IntegerField, Sum, Avg
+from django.db.models.functions import Concat
 
 from app.models.journey import Journey
+from app.models.ticket import Ticket
 from app.models.location import Location
 from app.models.user import User
 from app.models.bus import Bus
 from app.utils.serializer import Serializer
+from app.helpers.float_decimal_round import float_decimal_round
 
 
 class JourneySerializer(Serializer):
@@ -97,6 +102,62 @@ class JourneySerializer(Serializer):
             instance=self._model.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
             many=True,
         )
+
+    def average_passengers(self, page=1, per_page=10):
+        journeys = self._model.objects \
+            .values(
+                'origen',
+                'destination',
+            ) \
+            .annotate(
+                ids=ArrayAgg('id'),
+                range=Avg(
+                    F('datetime_end') - F('datetime_start'),
+                ),
+                name=Concat(
+                    'origen__country',
+                    Value('-'),
+                    'origen__city',
+                    Value(' / '),
+                    'destination__country',
+                    Value('-'),
+                    'destination__city',
+                    output_field=CharField(),
+                ),
+            )
+
+        journeys_ids = sum([journey['ids'] for journey in journeys], [])
+
+        tickets = Ticket.objects \
+            .values(
+                'journey__id',
+            ) \
+            .filter(
+                journey__id__in=journeys_ids,
+            ) \
+            .annotate(
+                passengers=Count('id'),
+            )
+        for ticket in tickets:
+            for journey in journeys:
+                if ticket['journey__id'] in journey['ids']:
+                    if not journey.get('passengers'):
+                        journey['passengers'] = []
+                    journey['passengers'] += [ticket['passengers']]
+        for journey in journeys:
+            if not journey.get('passengers'):
+                journey['passengers'] = []
+            journey['passengers_average'] = float_decimal_round(
+                sum(journey['passengers']) / len(journey['passengers'])
+            )
+            if journey.get('range'):
+                journey['range'] = journey['range'].total_seconds()
+            del journey['passengers']
+            del journey['ids']
+            del journey['origen']
+            del journey['destination']
+
+        return list(journeys)[(page - 1) * per_page:page * per_page]
 
     class Meta:
         model = Journey

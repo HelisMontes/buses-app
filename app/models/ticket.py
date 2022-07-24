@@ -4,6 +4,18 @@ from django.core.validators import MinValueValidator
 
 
 class Ticket(models.Model):
+    '''
+    Modelo de ticket
+
+    Attributes
+    ----------
+    user : int
+        Id del usuario
+    journey : int
+        Id del viaje
+    number_seat : int
+        Numero de asiento
+    '''
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,

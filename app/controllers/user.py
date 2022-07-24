@@ -1,6 +1,5 @@
 from app.decorators.response import response
-from app.decorators.methods import clean_get
-from app.decorators.methods import clean_post
+from app.decorators.request import request
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
@@ -9,10 +8,34 @@ from app.serializers.user import UserSerializer
 
 @csrf_exempt
 @api_view(['GET'])
-@clean_get
+@request
 @response
-def get_all(query_params):
-    """Get all users"""
+def get_all(payload: dict) -> dict:
+    '''
+    Obtener todos los usuarios
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - query_params: dict
+            - page: int
+            - per_page: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - users: list
+                - dict
+            - meta: dict
+                - page: int
+                - per_page: int
+                - total_items: int
+        - message: str
+    '''
+    query_params = payload.get('query_params')
+
     page = query_params.get('page', 1)
     per_page = query_params.get('per_page', 10)
 
@@ -37,8 +60,29 @@ def get_all(query_params):
 
 @csrf_exempt
 @api_view(['GET'])
+@request
 @response
-def get_one(request, pk):
+def get_one(payload: dict) -> dict:
+    '''
+    Obtener una usuario
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - path_params: dict
+            - pk: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - user: dict
+        - message: str
+    '''
+    path_params = payload.get('path_params')
+    pk = path_params.get('pk')
+
     serializer = UserSerializer()
     user = serializer.get_one(pk)
     if not user:
@@ -56,9 +100,28 @@ def get_one(request, pk):
 
 @csrf_exempt
 @api_view(['POST'])
-@clean_post
+@request
 @response
-def create(body):
+def create(payload: dict) -> dict:
+    '''
+    Crear una usuario
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - body: dict
+            Datos del usuario
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - location: dict
+        - message: str
+    '''
+    body = payload.get('body')
+
     serializer = UserSerializer(data=body)
     if not serializer.is_valid():
         return {
@@ -77,9 +140,28 @@ def create(body):
 
 @csrf_exempt
 @api_view(['POST'])
-@clean_post
+@request
 @response
-def update(body):
+def update(payload: dict) -> dict:
+    '''
+    Actualizar un usuario
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - body: dict
+            Datos del usuario
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - location: dict
+        - message: str
+    '''
+    body = payload.get('body')
+
     if not body.get('id'):
         return {
             'message': 'id is required',
@@ -114,9 +196,28 @@ def update(body):
 
 @csrf_exempt
 @api_view(['POST'])
-@clean_post
+@request
 @response
-def delete(body):
+def delete(payload: dict) -> dict:
+    '''
+    Eliminar un usuario
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - body: dict
+            Datos del usuario
+            - id: int
+                Primary key del usuario
+
+    Returns
+    -------
+    dict
+        - message: str
+    '''
+    body = payload.get('body')
+
     if not body.get('id'):
         return {
             'message': 'id is required',

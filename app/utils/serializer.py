@@ -4,6 +4,23 @@ from django.utils import timezone
 
 
 class Serializer(serializers.Serializer):
+    '''
+    Clase base para los serializers
+
+    Attributes
+    ----------
+
+    Methods
+    -------
+    set_data
+        Setea los datos del serializer
+
+    create
+        Crea un nuevo registro
+
+    update
+        Actualiza un registro
+    '''
 
     def set_data(self, data):
         if not self.instance:

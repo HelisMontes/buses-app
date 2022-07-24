@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from django.utils import timezone
 
 
 class Serializer(serializers.Serializer):
@@ -18,10 +19,12 @@ class Serializer(serializers.Serializer):
         self.initial_data = data_cleaned
 
     def create(self, validated_data):
+        validated_data['created_at'] = timezone.now()
         return self._model.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         for key, value in validated_data.items():
             setattr(instance, key, value)
+        instance.updated_at = timezone.now()
         instance.save()
         return instance

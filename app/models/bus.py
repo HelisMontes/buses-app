@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from app.models.journey import Journey
 
 
 class Bus(models.Model):
@@ -20,3 +21,11 @@ class Bus(models.Model):
 
     created_at = models.DateTimeField(null=True)
     updated_at = models.DateTimeField(null=True)
+
+    def is_available(self, datetime_start, datetime_end):
+        journeys = Journey.objects.filter(
+            bus=self,
+            datetime_start__lte=datetime_end,
+            datetime_end__gte=datetime_start,
+        )
+        return not journeys.exists()

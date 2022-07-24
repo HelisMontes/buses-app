@@ -18,6 +18,7 @@ class User(models.Model):
         choices=TYPE_USER_CHOICES,
         default='PASS',
     )
+    image = models.CharField(max_length=100, blank=True, null=True)
     status = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(null=True)

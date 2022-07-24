@@ -11,4 +11,8 @@ urlpatterns = [
         'location/',
         include('app.routes.location'),
     ),
+    path(
+        'user/',
+        include('app.routes.user'),
+    ),
 ]

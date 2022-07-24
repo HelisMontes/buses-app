@@ -3,6 +3,36 @@ from app.models.journey import Journey
 
 
 class User(models.Model):
+    '''
+    Modelo de usuario
+
+    Attributes
+    ----------
+    TYPE_USER_CHOICES : tuple
+        Tipos de usuario
+
+    identification : str
+        Identificación del usuario
+    name : str
+        Nombre del usuario
+    last_name : str
+        Apellido del usuario
+    email : str
+        Correo electrónico del usuario
+    phone : str
+        Teléfono del usuario
+    birth_date : date
+        Fecha de nacimiento del usuario
+    type_user : str
+        Tipo de usuario
+    image : str
+        Path de la imagen del usuario
+
+    Methods
+    -------
+    is_available
+        Verifica si el usuario está disponible para una fecha y hora
+    '''
     TYPE_USER_CHOICES = [
         ('PASS', 'passenger'),
         ('DRIV', 'driver'),

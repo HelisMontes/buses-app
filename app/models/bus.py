@@ -5,6 +5,31 @@ from app.models.journey import Journey
 
 
 class Bus(models.Model):
+    '''
+    Modelo de bus
+
+    Attributes
+    ----------
+    brand : str
+        Marca del bus
+    model : str
+        Modelo del bus
+    color : str
+        Color del bus
+    plate : str
+        Placa del bus
+    quantity_seats : int
+        Cantidad de asientos del bus
+    image : str
+        Path de la imagen del bus
+    year : int
+        Año de fabricación del bus
+
+    Methods
+    -------
+    is_available
+        Verifica si el bus está disponible para una fecha y hora
+    '''
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
     color = models.CharField(max_length=50)

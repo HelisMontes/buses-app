@@ -238,3 +238,54 @@ def delete(payload: dict) -> dict:
     return {
         'message': 'Journey with id {} has been deleted'.format(pk),
     }
+
+
+@csrf_exempt
+@api_view(['GET'])
+@request
+@response
+def average_passengers(payload: dict) -> dict:
+    '''
+    Obtener el promedio de pasajeros por ruta
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - query_params: dict
+            - page: int
+            - per_page: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - journeys: list
+                - dict
+            - meta: dict
+                - page: int
+                - per_page: int
+                - total_items: int
+        - message: str
+    '''
+    query_params = payload.get('query_params')
+
+    page = query_params.get('page', 1)
+    per_page = query_params.get('per_page', 10)
+
+    journeySerializer = JourneySerializer()
+    journeys = journeySerializer.average_passengers(
+        page=page,
+        per_page=per_page,
+    )
+
+    return {
+        'data': {
+            'journeys': journeys,
+            'meta': {
+                'page': page,
+                'per_page': per_page,
+            },
+        },
+        'message': 'success',
+    }

@@ -4,7 +4,7 @@ from app.decorators.methods import clean_post
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 
-from app.serializers.bus import BusSerializer
+from app.serializers.location import LocationSerializer
 
 
 @csrf_exempt
@@ -16,19 +16,19 @@ def get_all(query_params):
     page = query_params.get('page', 1)
     per_page = query_params.get('per_page', 10)
 
-    busSerializer = BusSerializer()
-    buses = busSerializer.get_all(
+    locationSerializer = LocationSerializer()
+    locations = locationSerializer.get_all(
         page=page,
         per_page=per_page,
     )
 
     return {
         'data': {
-            'buses': buses.data,
+            'locations': locations.data,
             'meta': {
                 'page': page,
                 'per_page': per_page,
-                'total_items': len(buses.data),
+                'total_items': len(locations.data),
             },
         },
         'message': 'success',
@@ -39,16 +39,16 @@ def get_all(query_params):
 @api_view(['GET'])
 @response
 def get_one(request, pk):
-    serializer = BusSerializer()
-    bus = serializer.get_one(pk)
-    if not bus:
+    serializer = LocationSerializer()
+    location = serializer.get_one(pk)
+    if not location:
         return {
-            'message': 'Bus with id {} does not exist'.format(pk),
+            'message': 'Location with id {} does not exist'.format(pk),
             'status': 404,
         }
     return {
         'data': {
-            'bus': bus.data,
+            'location': location.data,
         },
         'message': 'success',
     }
@@ -59,7 +59,7 @@ def get_one(request, pk):
 @clean_post
 @response
 def create(body):
-    serializer = BusSerializer(data=body)
+    serializer = LocationSerializer(data=body)
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
@@ -69,7 +69,7 @@ def create(body):
     serializer.save()
     return {
         'data': {
-            'bus': serializer.data,
+            'location': serializer.data,
         },
         'status': 201,
     }
@@ -88,26 +88,26 @@ def update(body):
 
     pk = body.get('id')
 
-    serializer = BusSerializer()
-    bus = serializer.get_one(pk)
-    if not bus:
+    serializer = LocationSerializer()
+    location = serializer.get_one(pk)
+    if not location:
         return {
-            'message': 'Bus with id {} does not exist'.format(pk),
+            'message': 'Location with id {} does not exist'.format(pk),
             'status': 404,
         }
 
-    bus.set_data(body)
-    if not bus.is_valid():
+    location.set_data(body)
+    if not location.is_valid():
         return {
-            'message': bus.errors,
+            'message': location.errors,
             'status': 422,
         }
 
-    bus.save()
+    location.save()
 
     return {
         'data': {
-            'bus': bus.data,
+            'location': location.data,
         },
     }
 
@@ -125,16 +125,16 @@ def delete(body):
 
     pk = body.get('id')
 
-    serializer = BusSerializer()
-    bus = serializer.get_one(pk)
-    if not bus:
+    serializer = LocationSerializer()
+    location = serializer.get_one(pk)
+    if not location:
         return {
-            'message': 'Bus with id {} does not exist'.format(pk),
+            'message': 'Location with id {} does not exist'.format(pk),
             'status': 404,
         }
 
-    bus.instance.delete()
+    location.instance.delete()
 
     return {
-        'message': 'Bus with id {} has been deleted'.format(pk),
+        'message': 'Location with id {} has been deleted'.format(pk),
     }

@@ -1,29 +1,19 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
-from app.models.bus import Bus
+from rest_framework.validators import UniqueTogetherValidator
+from app.models.location import Location
 from app.helpers.validate_base64_image import validate_base64_image
 from app.helpers.save_image import save_image
 from app.helpers.verify_image_exists import verify_image_exists
 from app.utils.serializer import Serializer
 
 
-class BusSerializer(Serializer):
-    _model = Bus
+class LocationSerializer(Serializer):
+    _model = Location
 
     id = serializers.IntegerField(read_only=True)
-    brand = serializers.CharField(required=True, max_length=100)
-    model = serializers.CharField(required=True, max_length=100)
-    color = serializers.CharField(required=True, max_length=50)
-    plate = serializers.CharField(
-        required=True,
-        max_length=10,
-        validators=[
-            UniqueValidator(queryset=_model.objects.all()),
-        ],
-    )
-    quantity_seats = serializers.IntegerField(required=True, min_value=1, max_value=10)
+    country = serializers.CharField(required=True, max_length=100)
+    city = serializers.CharField(required=True, max_length=100)
     image = serializers.CharField(required=False, allow_blank=True)
-    year = serializers.IntegerField(min_value=1950, max_value=2050)
     status = serializers.BooleanField(default=True)
     created_at = serializers.DateTimeField(read_only=True)
     updated_at = serializers.DateTimeField(read_only=True)
@@ -53,16 +43,23 @@ class BusSerializer(Serializer):
 
     def get_one(self, pk):
         try:
-            return BusSerializer(instance=self._model.objects.get(id=pk))
+            return LocationSerializer(instance=self._model.objects.get(id=pk))
         except self._model.DoesNotExist:
             return False
 
     def get_all(self, page=1, per_page=10):
-        return BusSerializer(
+        return LocationSerializer(
             instance=self._model.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
             many=True,
         )
 
     class Meta:
-        model = Bus
+        model = Location
         fields = "__all__"
+
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Location.objects.all(),
+                fields=['country', 'city']
+            )
+        ]

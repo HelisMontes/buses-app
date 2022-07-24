@@ -1,4 +1,5 @@
 from django.db import models
+from app.models.journey import Journey
 
 
 class User(models.Model):
@@ -23,3 +24,11 @@ class User(models.Model):
 
     created_at = models.DateTimeField(null=True)
     updated_at = models.DateTimeField(null=True)
+
+    def is_available(self, datetime_start, datetime_end):
+        journeys = Journey.objects.filter(
+            user=self,
+            datetime_start__lte=datetime_end,
+            datetime_end__gte=datetime_start,
+        )
+        return not journeys.exists()

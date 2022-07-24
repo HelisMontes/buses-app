@@ -15,4 +15,8 @@ urlpatterns = [
         'user/',
         include('app.routes.user'),
     ),
+    path(
+        'journey/',
+        include('app.routes.journey'),
+    ),
 ]

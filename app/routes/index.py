@@ -7,4 +7,8 @@ urlpatterns = [
         'bus/',
         include('app.routes.bus'),
     ),
+    path(
+        'location/',
+        include('app.routes.location'),
+    ),
 ]

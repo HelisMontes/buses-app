@@ -224,3 +224,4 @@ def delete(payload: dict) -> dict:
     return {
         'message': 'Bus with id {} has been deleted'.format(pk),
     }
+

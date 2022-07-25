@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.db.models import Avg
 from django.db.models import CharField
@@ -210,6 +211,29 @@ class JourneySerializer(Serializer):
             per_page=per_page,
             data_list=Bus.objects.filter(id__in=buses_filtered.keys()).order_by('id'),
             serializer=BusSerializer,
+        )
+
+    def available_for_sale(
+        self,
+        page: int = 1,
+        per_page: int = 10,
+        start: datetime = None,
+        end: datetime = None,
+        origen: Location = None,
+        destination: Location = None,
+    ):
+        journeys = Journey.objects \
+            .filter(
+                datetime_start__lte=end,
+                datetime_end__gte=start,
+                origen=origen,
+                destination=destination,
+            )
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=journeys.order_by('id'),
+            serializer=JourneySerializer,
         )
 
     class Meta:

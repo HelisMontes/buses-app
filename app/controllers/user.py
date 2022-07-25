@@ -33,10 +33,19 @@ def get_all(payload: dict) -> dict:
     page = query_params.get('page', 1)
     per_page = query_params.get('per_page', 10)
 
+    type_user = query_params.get('type_user', '').upper()
+    if type_user:
+        if type_user not in dict(UserSerializer.TYPE_USER_CHOICES):
+            return {
+                'message': 'Type user is not valid',
+                'status_code': 422,
+            }
+
     userSerializer = UserSerializer()
     users = userSerializer.get_all(
         page=page,
         per_page=per_page,
+        type_user=type_user,
     )
 
     return {

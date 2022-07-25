@@ -11,6 +11,8 @@ from app.utils.serializer import Serializer
 class UserSerializer(Serializer):
     _model = User
 
+    TYPE_USER_CHOICES = User.TYPE_USER_CHOICES
+
     id = serializers.IntegerField(read_only=True)
     identification = serializers.CharField(
         required=True,
@@ -67,11 +69,15 @@ class UserSerializer(Serializer):
         except self._model.DoesNotExist:
             return False
 
-    def get_all(self, page=1, per_page=10):
+    def get_all(self, page=1, per_page=10, type_user=None):
+        users = self._model.objects
+        if type_user:
+            users = users.filter(type_user=type_user)
+
         return pagination(
             page=page,
             per_page=per_page,
-            data_list=self._model.objects.all().order_by('id'),
+            data_list=users.all().order_by('id'),
             serializer=UserSerializer,
         )
 

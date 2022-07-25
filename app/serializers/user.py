@@ -4,6 +4,7 @@ from app.models.user import User
 from app.helpers.validate_base64_image import validate_base64_image
 from app.helpers.save_image import save_image
 from app.helpers.verify_image_exists import verify_image_exists
+from app.helpers.pagination import pagination
 from app.utils.serializer import Serializer
 
 
@@ -67,9 +68,11 @@ class UserSerializer(Serializer):
             return False
 
     def get_all(self, page=1, per_page=10):
-        return UserSerializer(
-            instance=self._model.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
-            many=True,
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=self._model.objects.all().order_by('id'),
+            serializer=UserSerializer,
         )
 
     class Meta:

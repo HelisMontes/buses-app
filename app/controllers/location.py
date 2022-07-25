@@ -1,9 +1,8 @@
-from app.decorators.response import response
 from app.decorators.request import request
+from app.decorators.response import response
+from app.serializers.location import LocationSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
-
-from app.serializers.location import LocationSerializer
 
 
 @csrf_exempt
@@ -26,12 +25,7 @@ def get_all(payload: dict) -> dict:
     -------
     dict
         - data: dict
-            - locations: list
-                - dict
-            - meta: dict
-                - page: int
-                - per_page: int
-                - total_items: int
+            - locations: dict
         - message: str
     '''
     query_params = payload.get('query_params')
@@ -46,12 +40,7 @@ def get_all(payload: dict) -> dict:
 
     return {
         'data': {
-            'locations': locations.data,
-            'meta': {
-                'page': page,
-                'per_page': per_page,
-                'total_items': len(locations.data),
-            },
+            'locations': locations,
         },
         'message': 'success',
     }

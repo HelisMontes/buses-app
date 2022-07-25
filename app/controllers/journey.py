@@ -1,9 +1,8 @@
-from app.decorators.response import response
 from app.decorators.request import request
+from app.decorators.response import response
+from app.serializers.journey import JourneySerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
-
-from app.serializers.journey import JourneySerializer
 
 
 @csrf_exempt
@@ -26,12 +25,7 @@ def get_all(payload: dict) -> dict:
     -------
     dict
         - data: dict
-            - journeys: list
-                - dict
-            - meta: dict
-                - page: int
-                - per_page: int
-                - total_items: int
+            - journeys: dict
         - message: str
     '''
     query_params = payload.get('query_params')
@@ -47,12 +41,7 @@ def get_all(payload: dict) -> dict:
 
     return {
         'data': {
-            'journeys': journeys.data,
-            'meta': {
-                'page': page,
-                'per_page': per_page,
-                'total_items': len(journeys.data),
-            },
+            'journeys': journeys,
         },
         'message': 'success',
     }
@@ -282,10 +271,6 @@ def average_passengers(payload: dict) -> dict:
     return {
         'data': {
             'journeys': journeys,
-            'meta': {
-                'page': page,
-                'per_page': per_page,
-            },
         },
         'message': 'success',
     }
@@ -373,11 +358,7 @@ def buses_average_sold(payload: dict) -> dict:
 
     return {
         'data': {
-            'buses': buses.data,
-            'meta': {
-                'page': page,
-                'per_page': per_page,
-            },
+            'buses': buses,
         },
         'message': 'success',
     }

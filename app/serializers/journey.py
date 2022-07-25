@@ -1,17 +1,22 @@
-from rest_framework import serializers
-from django.utils import timezone
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Value, CharField, Count, F, IntegerField, Sum, Avg
+from django.db.models import Avg
+from django.db.models import CharField
+from django.db.models import Count
+from django.db.models import F
+from django.db.models import Value
 from django.db.models.functions import Concat
+from django.utils import timezone
+from rest_framework import serializers
 
-from app.models.journey import Journey
-from app.models.ticket import Ticket
-from app.models.location import Location
-from app.models.user import User
+from app.helpers.float_decimal_round import float_decimal_round
+from app.helpers.pagination import pagination
 from app.models.bus import Bus
+from app.models.journey import Journey
+from app.models.location import Location
+from app.models.ticket import Ticket
+from app.models.user import User
 from app.serializers.bus import BusSerializer
 from app.utils.serializer import Serializer
-from app.helpers.float_decimal_round import float_decimal_round
 
 
 class JourneySerializer(Serializer):
@@ -99,9 +104,11 @@ class JourneySerializer(Serializer):
             return False
 
     def get_all(self, page=1, per_page=10):
-        return JourneySerializer(
-            instance=self._model.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
-            many=True,
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=self._model.objects.all().order_by('id'),
+            serializer=JourneySerializer,
         )
 
     def average_passengers(self, page=1, per_page=10):
@@ -158,7 +165,11 @@ class JourneySerializer(Serializer):
             del journey['origen']
             del journey['destination']
 
-        return list(journeys)[(page - 1) * per_page:page * per_page]
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=list(journeys),
+        )
 
     def buses_average_sold(
         self,
@@ -194,9 +205,11 @@ class JourneySerializer(Serializer):
             if average > average_sold:
                 buses_filtered[bus] = average
 
-        return BusSerializer(
-            instance=Bus.objects.filter(id__in=buses_filtered.keys()).order_by('id')[(page - 1) * per_page:page * per_page],
-            many=True,
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=Bus.objects.filter(id__in=buses_filtered.keys()).order_by('id'),
+            serializer=BusSerializer,
         )
 
     class Meta:

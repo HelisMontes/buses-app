@@ -1,6 +1,5 @@
-
-import base64
 from django.core.files.base import ContentFile
+import base64
 
 
 def base64_to_file(image: str) -> ContentFile:

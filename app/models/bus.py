@@ -1,6 +1,7 @@
-from django.db import models
 from django.core.validators import MaxValueValidator
 from django.core.validators import MinValueValidator
+from django.db import models
+
 from app.models.journey import Journey
 
 

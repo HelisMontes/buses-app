@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from django.utils import timezone
 
-from app.models.ticket import Ticket
+from app.helpers.pagination import pagination
 from app.models.journey import Journey
+from app.models.ticket import Ticket
 from app.models.user import User
 from app.utils.serializer import Serializer
 
@@ -55,9 +55,11 @@ class TicketSerializer(Serializer):
             return False
 
     def get_all(self, page=1, per_page=10):
-        return TicketSerializer(
-            instance=self._model.objects.all().order_by('id')[(page - 1) * per_page:page * per_page],
-            many=True,
+        return pagination(
+            page=page,
+            per_page=per_page,
+            data_list=self._model.objects.all().order_by('id'),
+            serializer=TicketSerializer,
         )
 
     class Meta:

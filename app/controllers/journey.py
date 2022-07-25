@@ -88,7 +88,7 @@ def get_one(payload: dict) -> dict:
     if not journey:
         return {
             'message': 'Journey with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
     return {
         'data': {
@@ -125,7 +125,7 @@ def create(payload: dict) -> dict:
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
-            'status': 400,
+            'status_code': 400,
         }
 
     serializer.save()
@@ -133,7 +133,7 @@ def create(payload: dict) -> dict:
         'data': {
             'journey': serializer.data,
         },
-        'status': 201,
+        'status_code': 201,
     }
 
 
@@ -164,7 +164,7 @@ def update(payload: dict) -> dict:
     if not body.get('id'):
         return {
             'message': 'id is required',
-            'status': 400,
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -174,14 +174,14 @@ def update(payload: dict) -> dict:
     if not journey:
         return {
             'message': 'Journey with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     journey.set_data(body)
     if not journey.is_valid():
         return {
             'message': journey.errors,
-            'status': 422,
+            'status_code': 422,
         }
 
     journey.save()
@@ -220,7 +220,7 @@ def delete(payload: dict) -> dict:
     if not body.get('id'):
         return {
             'message': 'id is required',
-            'status': 400,
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -230,7 +230,7 @@ def delete(payload: dict) -> dict:
     if not journey:
         return {
             'message': 'Journey with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     journey.instance.delete()
@@ -282,6 +282,98 @@ def average_passengers(payload: dict) -> dict:
     return {
         'data': {
             'journeys': journeys,
+            'meta': {
+                'page': page,
+                'per_page': per_page,
+            },
+        },
+        'message': 'success',
+    }
+
+
+@csrf_exempt
+@api_view(['GET'])
+@request
+@response
+def buses_average_sold(payload: dict) -> dict:
+    '''
+    Obtener el promedio de buses vendidos por ruta
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - query_params: dict
+            - page: int
+            - per_page: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - journeys: list
+                - dict
+            - meta: dict
+                - page: int
+                - per_page: int
+                - total_items: int
+        - message: str
+    '''
+    query_params = payload.get('query_params')
+
+    page = query_params.get('page', 1)
+    per_page = query_params.get('per_page', 10)
+
+    average_sold = query_params.get('average_sold')
+    if not average_sold:
+        return {
+            'message': 'average_sold is required',
+            'status_code': 422,
+        }
+    if not average_sold.isdigit():
+        return {
+            'message': 'average_sold must be a number',
+            'status_code': 422,
+        }
+    average_sold = float(average_sold)
+
+    if average_sold < 0:
+        return {
+            'message': 'average_sold must be greater than 0',
+            'status_code': 422,
+        }
+    if average_sold > 100:
+        return {
+            'message': 'average_sold must be less than 100',
+            'status_code': 422,
+        }
+
+    journey_id = query_params.get('journey')
+    if not journey_id:
+        return {
+            'message': 'journey is required',
+            'status_code': 422,
+        }
+
+    serializer = JourneySerializer()
+    journey = serializer.get_one(journey_id)
+    if not journey:
+        return {
+            'message': 'Journey with id {} does not exist'.format(journey_id),
+            'status_code': 404,
+        }
+
+    journeySerializer = JourneySerializer()
+    buses = journeySerializer.buses_average_sold(
+        page=page,
+        per_page=per_page,
+        average_sold=average_sold,
+        journey=journey.instance,
+    )
+
+    return {
+        'data': {
+            'buses': buses.data,
             'meta': {
                 'page': page,
                 'per_page': per_page,

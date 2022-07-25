@@ -14,4 +14,4 @@ def float_decimal_round(value: float, decimal_places: int = 2) -> float:
     float
         valor redondeado
     '''
-    return "{:.{}f}".format(value, decimal_places)
+    return float("{:.{}f}".format(value, decimal_places))

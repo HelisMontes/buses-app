@@ -9,6 +9,7 @@ from django.db.models.functions import Concat
 from django.utils import timezone
 from rest_framework import serializers
 
+from app.helpers.filter_and_sort import filter_and_sort
 from app.helpers.float_decimal_round import float_decimal_round
 from app.helpers.pagination import pagination
 from app.models.bus import Bus
@@ -104,11 +105,29 @@ class JourneySerializer(Serializer):
         except self._model.DoesNotExist:
             return False
 
-    def get_all(self, page=1, per_page=10):
+    def get_all(
+        self,
+        page=1,
+        per_page=10,
+        sort_by='id',
+        sort_type='asc',
+        filter_by=None,
+        filter_value=None,
+    ):
+        data_list = self._model.objects
+
+        filtered_data_list = filter_and_sort(
+            sort_by=sort_by,
+            sort_type=sort_type,
+            filter_by=filter_by,
+            filter_value=filter_value,
+            data_list=data_list,
+            model=self._model,
+        )
         return pagination(
             page=page,
             per_page=per_page,
-            data_list=self._model.objects.all().order_by('id'),
+            data_list=filtered_data_list,
             serializer=JourneySerializer,
         )
 
@@ -191,18 +210,15 @@ class JourneySerializer(Serializer):
             .annotate(
                 count=Count('id'),
             )
-        print('tickets', tickets)
         buses = {}
         for ticket in tickets:
             if not buses.get(ticket['journey__bus']):
                 buses[ticket['journey__bus']] = []
             buses[ticket['journey__bus']] += [ticket['count']]
-        print('buses', buses)
 
         buses_filtered = {}
         for bus, value in buses.items():
             average = float_decimal_round((sum(value) / (len(value)*10)) * 100)
-            print('average', average)
             if average > average_sold:
                 buses_filtered[bus] = average
 

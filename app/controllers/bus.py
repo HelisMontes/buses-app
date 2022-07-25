@@ -33,11 +33,20 @@ def get_all(payload: dict) -> dict:
     page = query_params.get('page', 1)
     per_page = query_params.get('per_page', 10)
 
+    params = {
+        'page': page,
+        'per_page': per_page,
+    }
+
+    if query_params.get('filter_by'):
+        params['filter_by'] = query_params.get('filter_by')
+        params['filter_value'] = query_params.get('filter_value')
+    if query_params.get('sort_by'):
+        params['sort_by'] = query_params.get('sort_by')
+        params['sort_type'] = query_params.get('sort_type')
+
     busSerializer = BusSerializer()
-    buses = busSerializer.get_all(
-        page=page,
-        per_page=per_page,
-    )
+    buses = busSerializer.get_all(**params)
 
     return {
         'data': {

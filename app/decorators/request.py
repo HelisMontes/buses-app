@@ -8,17 +8,18 @@ def request(function):
     def wrapper(*args, **kwargs) -> dict:
         path_params = kwargs
         body = JSONParser().parse(args[0]) if args[0].method == 'POST' else {}
-        query_params = {
-            **args[0].query_params,
-        }
+        query_params = {}
+        if args[0].method == 'GET':
+            for key, value in args[0].query_params.items():
+                query_params[key] = value
         if query_params.get('page'):
-            page = query_params.get('page', '') if type(query_params.get('page')) != list else query_params.get('page')[0]
+            page = query_params.get('page')
             if page.isdigit():
                 query_params['page'] = int(page)
             else:
                 del query_params['page']
         if query_params.get('per_page'):
-            per_page = query_params.get('per_page', '') if type(query_params.get('per_page')) != list else query_params.get('per_page')[0]
+            per_page = query_params.get('per_page')
             if per_page.isdigit():
                 query_params['per_page'] = int(per_page)
             else:

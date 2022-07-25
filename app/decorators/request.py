@@ -24,6 +24,26 @@ def request(function):
                 query_params['per_page'] = int(per_page)
             else:
                 del query_params['per_page']
+        if query_params.get('filter_by'):
+            filter_by = query_params.get('filter_by')
+            filter_value = query_params.get('filter_value')
+            if filter_by and filter_value:
+                query_params['filter_by'] = filter_by
+                query_params['filter_value'] = filter_value
+            else:
+                del query_params['filter_by']
+                if filter_value:
+                    del query_params['filter_value']
+        if query_params.get('sort_by'):
+            sort_by = query_params.get('sort_by')
+            sort_type = query_params.get('sort_type')
+            if sort_by and sort_type:
+                query_params['sort_by'] = sort_by
+                query_params['sort_type'] = sort_type
+            else:
+                del query_params['sort_by']
+                if sort_type:
+                    del query_params['sort_type']
         return function({
             'body': body or {},
             'query_params': query_params or {},

@@ -1,8 +1,10 @@
 from app.decorators.request import request
 from app.decorators.response import response
 from app.serializers.journey import JourneySerializer
+from app.serializers.location import LocationSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from app.helpers.validate_datetime import validate_datetime
 
 
 @csrf_exempt
@@ -359,6 +361,98 @@ def buses_average_sold(payload: dict) -> dict:
     return {
         'data': {
             'buses': buses,
+        },
+        'message': 'success',
+    }
+
+
+@csrf_exempt
+@api_view(['GET'])
+@request
+@response
+def available_for_sale(payload: dict) -> dict:
+    '''
+    Obtener las rutas disponibles para la ruta
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - query_params: dict
+            - page: int
+            - per_page: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - journeys: dict
+        - message: str
+    '''
+    query_params = payload.get('query_params')
+
+    page = query_params.get('page', 1)
+    per_page = query_params.get('per_page', 10)
+
+    errors = {}
+
+    start = query_params.get('start')
+    end = query_params.get('end')
+    origen = query_params.get('origen')
+    destination = query_params.get('destination')
+
+    if not start:
+        errors['start'] = 'Start is required'
+    if not end:
+        errors['end'] = 'End is required'
+    if not origen:
+        errors['origen'] = 'Origen is required'
+    elif not origen.isdigit():
+        errors['origen'] = 'Origen must be an integer'
+    if not destination:
+        errors['destination'] = 'Destination is required'
+    elif not destination.isdigit():
+        errors['destination'] = 'Destination must be an integer'
+
+    if errors:
+        return {
+            'message': errors,
+            'status_code': 422,
+        }
+
+    start = validate_datetime(start)
+    end = validate_datetime(end)
+    origen = LocationSerializer().get_one(int(origen))
+    destination = LocationSerializer().get_one(int(destination))
+
+    if not start:
+        errors['start'] = 'Start is not a valid date, must be in format %Y-%m-%d %H:%M'
+    if not end:
+        errors['end'] = 'End is not a valid date, must be in format %Y-%m-%d %H:%M'
+    if not origen:
+        errors['origen'] = 'Origen does not exist'
+    if not destination:
+        errors['destination'] = 'Destination does not exist'
+
+    if errors:
+        return {
+            'message': errors,
+            'status_code': 422,
+        }
+
+    journeySerializer = JourneySerializer()
+    journeys = journeySerializer.available_for_sale(
+        page=page,
+        per_page=per_page,
+        start=start,
+        end=end,
+        origen=origen.instance,
+        destination=destination.instance,
+    )
+
+    return {
+        'data': {
+            'journeys': journeys,
         },
         'message': 'success',
     }

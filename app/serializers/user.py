@@ -5,11 +5,14 @@ from app.helpers.validate_base64_image import validate_base64_image
 from app.helpers.save_image import save_image
 from app.helpers.verify_image_exists import verify_image_exists
 from app.helpers.pagination import pagination
+from app.helpers.filter_and_sort import filter_and_sort
 from app.utils.serializer import Serializer
 
 
 class UserSerializer(Serializer):
     _model = User
+
+    TYPE_USER_CHOICES = User.TYPE_USER_CHOICES
 
     id = serializers.IntegerField(read_only=True)
     identification = serializers.CharField(
@@ -67,11 +70,33 @@ class UserSerializer(Serializer):
         except self._model.DoesNotExist:
             return False
 
-    def get_all(self, page=1, per_page=10):
+    def get_all(
+        self,
+        page=1,
+        per_page=10,
+        type_user=None,
+        sort_by='id',
+        sort_type='asc',
+        filter_by=None,
+        filter_value=None,
+    ):
+        data_list = self._model.objects
+        if type_user:
+            data_list = data_list.filter(type_user=type_user)
+
+        filtered_data_list = filter_and_sort(
+            sort_by=sort_by,
+            sort_type=sort_type,
+            filter_by=filter_by,
+            filter_value=filter_value,
+            data_list=data_list,
+            model=self._model,
+        )
+
         return pagination(
             page=page,
             per_page=per_page,
-            data_list=self._model.objects.all().order_by('id'),
+            data_list=filtered_data_list,
             serializer=UserSerializer,
         )
 

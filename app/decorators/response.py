@@ -11,7 +11,7 @@ def response(f):
         message = response.get('message', '')
         status_code = response.get('status_code', 200)
 
-        return JsonResponse(
+        response = JsonResponse(
             {
                 'data': data,
                 'message': message,
@@ -19,4 +19,10 @@ def response(f):
             status=status_code,
             safe=False,
         )
+        response['Access-Control-Allow-Origin'] = '*'
+        response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response['Access-Control-Max-Age'] = '1000'
+        response['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type'
+
+        return response
     return wrapped

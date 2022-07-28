@@ -1,5 +1,10 @@
-import os
+
+from dotenv import load_dotenv
 from pathlib import Path
+
+import os
+
+load_dotenv()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -15,7 +20,7 @@ SECRET_KEY = 'django-insecure--oh8-x*vtx&kciq=_4680@5uzj=_301bl$cscmaez*eg=&v7gu
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(' ')
 
 MEDIA_URL = "/images/"
 MEDIA_ROOT = BASE_DIR / 'images'
@@ -100,6 +105,22 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
 ]
 
 

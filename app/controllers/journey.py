@@ -54,7 +54,6 @@ def get_all(payload: dict) -> dict:
         'data': {
             'journeys': journeys,
         },
-        'message': 'success',
     }
 
 
@@ -94,7 +93,6 @@ def get_one(payload: dict) -> dict:
         'data': {
             'journey': journey.data,
         },
-        'message': 'success',
     }
 
 
@@ -125,7 +123,7 @@ def create(payload: dict) -> dict:
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
-            'status_code': 400,
+            'status_code': 422,
         }
 
     serializer.save()
@@ -163,7 +161,7 @@ def update(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
+            'message': 'Id is required',
             'status_code': 400,
         }
 
@@ -219,7 +217,7 @@ def delete(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
+            'message': 'Id is required',
             'status_code': 400,
         }
 
@@ -283,7 +281,6 @@ def average_passengers(payload: dict) -> dict:
         'data': {
             'journeys': journeys,
         },
-        'message': 'success',
     }
 
 
@@ -371,7 +368,6 @@ def buses_average_sold(payload: dict) -> dict:
         'data': {
             'buses': buses,
         },
-        'message': 'success',
     }
 
 
@@ -463,5 +459,4 @@ def available_for_sale(payload: dict) -> dict:
         'data': {
             'journeys': journeys,
         },
-        'message': 'success',
     }

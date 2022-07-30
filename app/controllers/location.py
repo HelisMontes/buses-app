@@ -52,7 +52,6 @@ def get_all(payload: dict) -> dict:
         'data': {
             'locations': locations,
         },
-        'message': 'success',
     }
 
 
@@ -92,7 +91,6 @@ def get_one(payload: dict) -> dict:
         'data': {
             'location': location.data,
         },
-        'message': 'success',
     }
 
 
@@ -124,7 +122,7 @@ def create(payload: dict) -> dict:
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
-            'status_code': 400,
+            'status_code': 422,
         }
 
     serializer.save()
@@ -162,7 +160,7 @@ def update(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
+            'message': 'Id is required',
             'status_code': 400,
         }
 
@@ -218,7 +216,7 @@ def delete(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
+            'message': 'Id is required',
             'status_code': 400,
         }
 

@@ -18,12 +18,16 @@ def request(function):
                 query_params['page'] = int(page)
             else:
                 del query_params['page']
+        elif query_params.get('page') == '':
+            del query_params['per_page']
         if query_params.get('per_page'):
             per_page = query_params.get('per_page')
             if per_page.isdigit():
                 query_params['per_page'] = int(per_page)
             else:
                 del query_params['per_page']
+        elif query_params.get('per_page') == '':
+            del query_params['per_page']
         if query_params.get('filter_by'):
             filter_by = query_params.get('filter_by')
             filter_value = query_params.get('filter_value')

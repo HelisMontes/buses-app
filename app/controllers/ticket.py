@@ -52,7 +52,6 @@ def get_all(payload: dict) -> dict:
         'data': {
             'tickets': tickets,
         },
-        'message': 'success',
     }
 
 
@@ -86,13 +85,12 @@ def get_one(payload: dict) -> dict:
     if not ticket:
         return {
             'message': 'Ticket with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
     return {
         'data': {
             'ticket': ticket.data,
         },
-        'message': 'success',
     }
 
 
@@ -123,7 +121,7 @@ def create(payload: dict) -> dict:
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
-            'status': 400,
+            'status_code': 422,
         }
 
     serializer.save()
@@ -131,7 +129,7 @@ def create(payload: dict) -> dict:
         'data': {
             'ticket': serializer.data,
         },
-        'status': 201,
+        'status_code': 201,
     }
 
 
@@ -160,8 +158,8 @@ def update(payload: dict) -> dict:
     body = payload.get('body')
     if not body.get('id'):
         return {
-            'message': 'id is required',
-            'status': 400,
+            'message': 'Id is required',
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -171,14 +169,14 @@ def update(payload: dict) -> dict:
     if not ticket:
         return {
             'message': 'Ticket with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     ticket.set_data(body)
     if not ticket.is_valid():
         return {
             'message': ticket.errors,
-            'status': 422,
+            'status_code': 422,
         }
 
     ticket.save()
@@ -215,8 +213,8 @@ def delete(payload: dict) -> dict:
     body = payload.get('body')
     if not body.get('id'):
         return {
-            'message': 'id is required',
-            'status': 400,
+            'message': 'Id is required',
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -226,7 +224,7 @@ def delete(payload: dict) -> dict:
     if not ticket:
         return {
             'message': 'Ticket with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     ticket.instance.delete()

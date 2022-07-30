@@ -61,7 +61,6 @@ def get_all(payload: dict) -> dict:
         'data': {
             'users': users,
         },
-        'message': 'success',
     }
 
 
@@ -95,13 +94,12 @@ def get_one(payload: dict) -> dict:
     if not user:
         return {
             'message': 'User with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
     return {
         'data': {
             'user': user.data,
         },
-        'message': 'success',
     }
 
 
@@ -133,7 +131,7 @@ def create(payload: dict) -> dict:
     if not serializer.is_valid():
         return {
             'message': serializer.errors,
-            'status': 400,
+            'status_code': 422,
         }
 
     serializer.save()
@@ -141,7 +139,7 @@ def create(payload: dict) -> dict:
         'data': {
             'user': serializer.data,
         },
-        'status': 201,
+        'status_code': 201,
     }
 
 
@@ -171,8 +169,8 @@ def update(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
-            'status': 400,
+            'message': 'Id is required',
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -182,14 +180,14 @@ def update(payload: dict) -> dict:
     if not user:
         return {
             'message': 'User with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     user.set_data(body)
     if not user.is_valid():
         return {
             'message': user.errors,
-            'status': 422,
+            'status_code': 422,
         }
 
     user.save()
@@ -227,8 +225,8 @@ def delete(payload: dict) -> dict:
 
     if not body.get('id'):
         return {
-            'message': 'id is required',
-            'status': 400,
+            'message': 'Id is required',
+            'status_code': 400,
         }
 
     pk = body.get('id')
@@ -238,7 +236,7 @@ def delete(payload: dict) -> dict:
     if not user:
         return {
             'message': 'User with id {} does not exist'.format(pk),
-            'status': 404,
+            'status_code': 404,
         }
 
     user.instance.delete()

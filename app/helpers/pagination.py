@@ -29,6 +29,7 @@ def pagination(page: int, per_page: int, data_list: list, serializer=None) -> di
             'total_items': total_items,
             'prev_page': page - 1 if page > 1 else None,
             'next_page': page + 1 if page < total_pages else None,
+            'last_page': total_pages,
         },
         'list': data_list or [],
     }

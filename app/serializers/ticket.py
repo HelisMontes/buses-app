@@ -2,10 +2,10 @@ from rest_framework import serializers
 
 from app.helpers.filter_and_sort import filter_and_sort
 from app.helpers.pagination import pagination
-from app.models.journey import Journey
 from app.models.ticket import Ticket
-from app.models.user import User
 from app.utils.serializer import Serializer
+from app.serializers.journey import JourneySerializer
+from app.serializers.user import UserSerializer
 
 
 class TicketSerializer(Serializer):
@@ -13,14 +13,8 @@ class TicketSerializer(Serializer):
 
     id = serializers.IntegerField(read_only=True)
 
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.all(),
-        required=True,
-    )
-    journey = serializers.PrimaryKeyRelatedField(
-        queryset=Journey.objects.all(),
-        required=True,
-    )
+    user = UserSerializer(required=True)
+    journey = JourneySerializer(required=True)
     number_seat = serializers.IntegerField(
         min_value=1,
         max_value=10,

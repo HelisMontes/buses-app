@@ -39,9 +39,10 @@ INSTALLED_APPS = [
     'app',
 ]
 
+# yyyy-MM-ddThh:mm
 REST_FRAMEWORK = {
-    'DATETIME_FORMAT': '%Y-%m-%d %H:%M',
-    'DATETIME_INPUT_FORMATS': ['%Y-%m-%d %H:%M'],
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M',
+    'DATETIME_INPUT_FORMATS': ['%Y-%m-%dT%H:%M'],
 }
 
 MIDDLEWARE = [

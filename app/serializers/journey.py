@@ -198,9 +198,15 @@ class JourneySerializer(Serializer):
         for journey in journeys:
             if not journey.get('passengers'):
                 journey['passengers'] = []
-            journey['passengers_average'] = float_decimal_round(
-                sum(journey['passengers']) / len(journey['passengers'])
-            )
+            print('------------------')
+            print(journey['passengers'])
+            sum_passengers = sum(journey['passengers'])
+            if sum_passengers:
+                journey['passengers_average'] = float_decimal_round(
+                    sum(journey['passengers']) / len(journey['passengers'])
+                )
+            else:
+                journey['passengers_average'] = 0
             if journey.get('range'):
                 journey['range'] = journey['range'].total_seconds()
             del journey['passengers']

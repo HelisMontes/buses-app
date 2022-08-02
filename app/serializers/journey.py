@@ -18,6 +18,8 @@ from app.models.location import Location
 from app.models.ticket import Ticket
 from app.models.user import User
 from app.serializers.bus import BusSerializer
+from app.serializers.location import LocationSerializer
+from app.serializers.user import UserSerializer
 from app.utils.serializer import Serializer
 
 
@@ -26,21 +28,37 @@ class JourneySerializer(Serializer):
 
     id = serializers.IntegerField(read_only=True)
 
-    origen = serializers.PrimaryKeyRelatedField(
+    origen_id = serializers.PrimaryKeyRelatedField(
         queryset=Location.objects.all(),
         required=True,
     )
-    destination = serializers.PrimaryKeyRelatedField(
+    origen = LocationSerializer(
+        read_only=True,
+        required=False,
+    )
+    destination_id = serializers.PrimaryKeyRelatedField(
         queryset=Location.objects.all(),
         required=True,
     )
-    bus = serializers.PrimaryKeyRelatedField(
+    destination = LocationSerializer(
+        read_only=True,
+        required=False,
+    )
+    bus_id = serializers.PrimaryKeyRelatedField(
         queryset=Bus.objects.all(),
         required=True,
     )
-    user = serializers.PrimaryKeyRelatedField(
+    bus = BusSerializer(
+        read_only=True,
+        required=False,
+    )
+    user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),
         required=True,
+    )
+    user = UserSerializer(
+        read_only=True,
+        required=False,
     )
 
     price = serializers.DecimalField(
@@ -57,17 +75,17 @@ class JourneySerializer(Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
     def validate(self, data):
-        origen = data.get('origen')
-        destination = data.get('destination')
-        bus = data.get('bus')
-        user = data.get('user')
+        origen_id = data.get('origen_id')
+        destination_id = data.get('destination_id')
+        bus_id = data.get('bus_id')
+        user_id = data.get('user_id')
         datetime_start = data.get('datetime_start')
         datetime_end = data.get('datetime_end')
 
-        if origen == destination:
+        if origen_id == destination_id:
             raise serializers.ValidationError({
-                'origen': 'Origen and destination must be different',
-                'destination': 'Origen and destination must be different',
+                'origen_id': 'Origen and destination must be different',
+                'destination_id': 'Origen and destination must be different',
             })
 
         if datetime_start < timezone.now():
@@ -83,19 +101,24 @@ class JourneySerializer(Serializer):
                 'datetime_end': 'Datetime end must be greater than datetime start',
             })
 
-        if not user.type_user == 'DRIV':
+        if not user_id.type_user == 'DRIV':
             raise serializers.ValidationError({
-                'user': 'User must be a driver',
+                'user_id': 'User must be a driver',
             })
 
         errors = {}
-        if not bus.is_available(datetime_start, datetime_end, self.instance):
-            errors['bus'] = 'Bus is not available in this time'
-        if not user.is_available(datetime_start, datetime_end, self.instance):
-            errors['user'] = 'User is not available in this time'
+        if not bus_id.is_available(datetime_start, datetime_end, self.instance):
+            errors['bus_id'] = 'Bus is not available in this time'
+        if not user_id.is_available(datetime_start, datetime_end, self.instance):
+            errors['user_id'] = 'User is not available in this time'
 
         if errors.keys():
             raise serializers.ValidationError(errors)
+
+        data['origen_id'] = origen_id.id
+        data['destination_id'] = destination_id.id
+        data['bus_id'] = bus_id.id
+        data['user_id'] = user_id.id
 
         return data
 
@@ -254,4 +277,4 @@ class JourneySerializer(Serializer):
 
     class Meta:
         model = Journey
-        fields = '__all__'
+        fields = ['id', 'datetime_start', 'datetime_end', 'user', 'user_data', 'bus', 'origen', 'destination']

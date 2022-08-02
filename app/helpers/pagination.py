@@ -1,12 +1,16 @@
 import math
 
 
-def pagination(page: int, per_page: int, data_list: list, serializer=None) -> dict:
+def pagination(page, per_page, data_list: list, serializer=None) -> dict:
     """
     Genera los links de paginación.
     """
     total_items = data_list.count() if serializer else len(data_list)
+    if per_page == 'all':
+        per_page = total_items
     total_pages = math.ceil(total_items / per_page)
+    if page == 'all':
+        page = 1
     if page > total_pages:
         page = total_pages
     if page < 1:

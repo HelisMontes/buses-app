@@ -17,6 +17,6 @@ def validate_datetime(string: str) -> bool or datetime:
         datetime si es una fecha válida
     '''
     try:
-        return datetime.strptime(string, '%Y-%m-%d %H:%M')
+        return datetime.strptime(string, '%Y-%m-%dT%H:%M')
     except ValueError:
         return False

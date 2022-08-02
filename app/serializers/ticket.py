@@ -3,6 +3,8 @@ from rest_framework import serializers
 from app.helpers.filter_and_sort import filter_and_sort
 from app.helpers.pagination import pagination
 from app.models.ticket import Ticket
+from app.models.journey import Journey
+from app.models.user import User
 from app.utils.serializer import Serializer
 from app.serializers.journey import JourneySerializer
 from app.serializers.user import UserSerializer
@@ -13,8 +15,24 @@ class TicketSerializer(Serializer):
 
     id = serializers.IntegerField(read_only=True)
 
-    user = UserSerializer(required=True)
-    journey = JourneySerializer(required=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        required=True,
+    )
+    user = UserSerializer(
+        read_only=True,
+        required=False,
+    )
+
+    journey_id = serializers.PrimaryKeyRelatedField(
+        queryset=Journey.objects.all(),
+        required=True,
+    )
+    journey = JourneySerializer(
+        read_only=True,
+        required=False,
+    )
+
     number_seat = serializers.IntegerField(
         min_value=1,
         max_value=10,
@@ -26,20 +44,23 @@ class TicketSerializer(Serializer):
     updated_at = serializers.DateTimeField(read_only=True)
 
     def validate(self, data):
-        user = data.get('user')
-        if not user.type_user == 'PASS':
+        user_id = data.get('user_id')
+        if not user_id.type_user == 'PASS':
             raise serializers.ValidationError({
                 'user': 'User is not passenger'
             })
-        journey = data.get('journey')
-        if not journey.status:
+        journey_id = data.get('journey_id')
+        if not journey_id.status:
             raise serializers.ValidationError({
                 'journey': 'Journey is not active'
             })
-        if not journey.seat_available(data.get('number_seat'), self.instance):
+        if not journey_id.seat_available(data.get('number_seat'), self.instance):
             raise serializers.ValidationError({
                 'number_seat': 'Seat is not available'
             })
+
+        data['user_id'] = user_id.id
+        data['journey_id'] = journey_id.id
 
         return data
 
@@ -74,6 +95,16 @@ class TicketSerializer(Serializer):
             data_list=filtered_data_list,
             serializer=TicketSerializer,
         )
+
+    def to_buy(self, journey):
+        tickets = TicketSerializer(
+            instance=self._model.objects.filter(
+                journey=journey,
+                status=True,
+            ),
+            many=True,
+        )
+        return tickets
 
     class Meta:
         model = Ticket

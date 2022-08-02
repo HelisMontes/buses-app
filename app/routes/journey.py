@@ -8,6 +8,7 @@ from app.controllers.journey import delete
 from app.controllers.journey import average_passengers
 from app.controllers.journey import buses_average_sold
 from app.controllers.journey import available_for_sale
+from app.controllers.journey import to_buy
 
 
 urlpatterns = [
@@ -19,4 +20,5 @@ urlpatterns = [
     path('average_passengers', average_passengers),
     path('buses_average_sold', buses_average_sold),
     path('available-for-sale', available_for_sale),
+    path('to_buy/<int:pk>', to_buy),
 ]

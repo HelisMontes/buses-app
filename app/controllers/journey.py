@@ -2,6 +2,7 @@ from app.decorators.request import request
 from app.decorators.response import response
 from app.serializers.journey import JourneySerializer
 from app.serializers.location import LocationSerializer
+from app.serializers.ticket import TicketSerializer
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from app.helpers.validate_datetime import validate_datetime
@@ -403,21 +404,21 @@ def available_for_sale(payload: dict) -> dict:
 
     start = query_params.get('start')
     end = query_params.get('end')
-    origen = query_params.get('origen')
-    destination = query_params.get('destination')
+    origen_id = query_params.get('origen_id')
+    destination_id = query_params.get('destination_id')
 
     if not start:
         errors['start'] = 'Start is required'
     if not end:
         errors['end'] = 'End is required'
-    if not origen:
-        errors['origen'] = 'Origen is required'
-    elif not origen.isdigit():
-        errors['origen'] = 'Origen must be an integer'
-    if not destination:
-        errors['destination'] = 'Destination is required'
-    elif not destination.isdigit():
-        errors['destination'] = 'Destination must be an integer'
+    if not origen_id:
+        errors['origen_id'] = 'Origen is required'
+    elif not origen_id.isdigit():
+        errors['origen_id'] = 'Origen must be an integer'
+    if not destination_id:
+        errors['destination_id'] = 'Destination is required'
+    elif not destination_id.isdigit():
+        errors['destination_id'] = 'Destination must be an integer'
 
     if errors:
         return {
@@ -427,17 +428,17 @@ def available_for_sale(payload: dict) -> dict:
 
     start = validate_datetime(start)
     end = validate_datetime(end)
-    origen = LocationSerializer().get_one(int(origen))
-    destination = LocationSerializer().get_one(int(destination))
+    origen_id = LocationSerializer().get_one(int(origen_id))
+    destination_id = LocationSerializer().get_one(int(destination_id))
 
     if not start:
         errors['start'] = 'Start is not a valid date, must be in format %Y-%m-%d %H:%M'
     if not end:
         errors['end'] = 'End is not a valid date, must be in format %Y-%m-%d %H:%M'
-    if not origen:
-        errors['origen'] = 'Origen does not exist'
-    if not destination:
-        errors['destination'] = 'Destination does not exist'
+    if not origen_id:
+        errors['origen_id'] = 'Origen does not exist'
+    if not destination_id:
+        errors['destination_id'] = 'Destination does not exist'
 
     if errors:
         return {
@@ -451,12 +452,56 @@ def available_for_sale(payload: dict) -> dict:
         per_page=per_page,
         start=start,
         end=end,
-        origen=origen.instance,
-        destination=destination.instance,
+        origen=origen_id.instance,
+        destination=destination_id.instance,
     )
 
     return {
         'data': {
             'journeys': journeys,
+        },
+    }
+
+
+@csrf_exempt
+@api_view(['GET'])
+@request
+@response
+def to_buy(payload: dict) -> dict:
+    '''
+    Obtener la informacion del viaje para comprar
+
+    Parameters
+    ----------
+    payload : dict
+        payload de la petición
+        - path_params: dict
+            - pk: int
+
+    Returns
+    -------
+    dict
+        - data: dict
+            - journey: dict
+        - message: str
+    '''
+    path_params = payload.get('path_params')
+    pk = path_params.get('pk')
+
+    serializer = JourneySerializer()
+    journey = serializer.get_one(pk)
+    if not journey:
+        return {
+            'message': 'Journey with id {} does not exist'.format(pk),
+            'status_code': 404,
+        }
+
+    ticketSerializer = TicketSerializer()
+    tickets = ticketSerializer.to_buy(journey.instance)
+
+    return {
+        'data': {
+            'journey': journey.data,
+            'tickets': tickets.data,
         },
     }
